@@ -1,0 +1,66 @@
+---
+title: "PROJECT2"
+output: "github_document"
+---
+## Code for reading in the dataset and/or processing the data
+```{r,echo=TRUE}
+Steps<-read.csv("C:/Users/binay/OneDrive/Desktop/activity.csv")
+Steps
+```
+## Histogram of the total number of steps taken each day
+```{r,echo=TRUE}
+totalsteps<-aggregate(Steps$steps,by=list(Steps$date),sum)
+totalsteps
+library(ggplot2)
+colnames(totalsteps)=c("Date","STEPS")
+g<-ggplot(totalsteps,aes(STEPS))+geom_histogram(,binwidth=1000)+xlab("steps")+ylab("frequency")
+print(g)
+```
+## Mean and median number of steps taken each day
+```{r,echo=TRUE}
+meanstepsperday<-mean(totalsteps$STEPS,na.rm=TRUE)
+meanstepsperday
+medianstepsperday<-median(totalsteps$STEPS,na.rm=TRUE)
+medianstepsperday
+```
+## Time series plot of the average number of steps taken
+```{r,echo=TRUE}
+timeseriessteps<-aggregate(steps~interval,Steps,FUN = mean,na.action = na.omit)
+library(ggplot2)
+m<-ggplot(timeseriessteps,aes(interval,steps))+geom_line(col="blue")+ggtitle("Time series plot")+xlab("interval")+ylab("steps")
+print(m)
+```
+## The 5-minute interval that, on average, contains the maximum number of steps
+```{r,echo=TRUE}
+library(dplyr)
+gg<-tbl_df(timeseriessteps)
+gg %>% select(interval,steps)%>%filter(steps==max(timeseriessteps$steps))
+```
+## Code to describe and show a strategy for imputing missing data and Histogram of the total number of steps taken each day after missing values are imputed
+```{r,echo=TRUE}
+library(dplyr)
+Nomissingsteps<-Steps[complete.cases(Steps),]
+totalsteps1<-aggregate(Nomissingsteps$steps,by=list(Nomissingsteps$date),sum)
+library(ggplot2)
+f<-ggplot(totalsteps1,aes(x))+geom_histogram(,binwidth = 1000)+xlab("steps")+ylab("frequency")
+print(f)
+```
+```{r,echo=TRUE}
+MEAN<-mean(Nomissingsteps$steps)
+MEAN
+MEDIAN<-median(Nomissingsteps$steps)
+MEDIAN
+```
+## Panel plot comparing the average number of steps taken per 5-minute interval across weekdays and weekends         
+```{r,echo=TRUE}
+Steps$day<-weekdays(as.Date(Steps$date))
+Steps$weekdaytype<-ifelse(Steps$day=="Saturday"|Steps$day=="Sunday","weekend","weekday")
+Steps$weekdaytype
+```
+```{r,echo=TRUE}
+library(dplyr)
+timeseriesstepzs1<-aggregate(steps~interval+weekdaytype,Steps,FUN = mean)
+library(ggplot2)
+a<-ggplot(timeseriesstepzs1,aes(interval,steps))+geom_line(col="blue")+facet_grid(weekdaytype~.)+xlab("5min Interval")+ylab("Steps")
+print(a)
+```
